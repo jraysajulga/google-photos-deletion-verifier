@@ -26,34 +26,31 @@ function listGooglePhotoFiles(){
   var month;
   var year;
   var size;
-  var minFileNum = 257;
-  var maxFileNum = 504;
-  var minMonth = 12; 
-  var maxMonth = 12;
-  var targYear = 2017;
+  var name;
+  var minFileNum = 2342;
+  var maxFileNum = 3040;
+  var minMonth = 9; 
+  var maxMonth = 9;
+  var targYear = 2018;
   while(gp_years.hasNext()){
-     year_folder = gp_years.next();
-     year_photos = year_folder.getFiles();
-    while(year_photos.hasNext()){
-      file = year_photos.next();
-      filename = file.getName();
-      if (filename.slice(0,3) == "100"){
-        filenumber = filename.slice(4,-3);
+    year_folder = gp_years.next();
+    name = year_folder.getName();
+    year_photos = year_folder.getFiles();
+    if (name == targYear){
+      while(year_photos.hasNext()){
+        file = year_photos.next();
+        filename = file.getName();
         fulldate = file.getDateCreated();
         month = fulldate.getMonth()+1;
         date = fulldate.getUTCDate();
         year = fulldate.getUTCFullYear();
-        size = file.getSize();
-        if (minFileNum <= filenumber && filenumber <= maxFileNum){
-          if (minMonth <= month && month <= maxMonth){
+        if (minMonth <= month && month <= maxMonth){
              if (year = targYear){
-               uploadedSh.appendRow([filename,fulldate,size]);
+               uploadedSh.appendRow([filename,fulldate]);
              }
-          }
         }
       }
     }
-    Logger.log(year_folder.getName());
   }
 }
 
@@ -118,3 +115,5 @@ function listFauxUploads() {
     }
 }
     
+
+
