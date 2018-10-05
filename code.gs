@@ -1,4 +1,4 @@
-function listGooglePhotoFiles(){
+function listUploads(){
   
   // GUIDE: https://developers.google.com/apps-script/reference/spreadsheet/spreadsheet-app
   
@@ -15,40 +15,47 @@ function listGooglePhotoFiles(){
   var foldername = "GooglePhotos";
   var google_photos_folders = DriveApp.getFoldersByName(foldername);
   var google_photos_folder = google_photos_folders.next();
-  var gp_years = google_photos_folder.getFolders();
+
+  // Obtain targeted year folder  
+  var targYear = false;
+  var targFolder;
+  if (targYear){
+    targFolder = google_photos_folder.getFoldersByName(targYear);
+  } else {    
+    targFolder = google_photos_folder.getFolders();
+  }
   
-  // Outputs the names of files into "Google Photos" sheet
-  var file;
-  var filename;
-  var fullname;
-  var filenumber;
-  var fulldate;
-  var month;
-  var year;
+  // Activates the "Pending Deletions" sheet and copies the information into an array.
+  var pendingDeletionsSh = spreadsheets.getSheetByName("Pending Deletions");
+  pendingDeletionsSh.activate();
+  var pendingDeletionVals = pendingDeletionsSh.getDataRange().getValues();
+  var pendingDeletionArr = new Array;
+  for (i in pendingDeletionVals) {
+     pendingDeletionArr.push(pendingDeletionVals[i].toString());
+  }
+  
+  // Activates the "Faux Uploads" sheet
+  var fauxUploadSh = spreadsheets.getSheetByName("Faux Uploads");
+  fauxUploadSh.activate();
+  fauxUploadSh.clear();
+  
+  // Activates the "Uploaded" sheet
+  var uploadedSh = spreadsheets.getSheetByName("Uploaded");
+  uploadedSh.activate();
+  uploadedSh.clear();
+ 
+  var folder;
+  var files; // FileIterator
   var size;
-  var name;
-  var minFileNum = 2342;
-  var maxFileNum = 3040;
-  var minMonth = 9; 
-  var maxMonth = 9;
-  var targYear = 2018;
-  while(gp_years.hasNext()){
-    year_folder = gp_years.next();
-    name = year_folder.getName();
-    year_photos = year_folder.getFiles();
-    if (name == targYear){
-      while(year_photos.hasNext()){
-        file = year_photos.next();
-        filename = file.getName();
-        fulldate = file.getDateCreated();
-        month = fulldate.getMonth()+1;
-        date = fulldate.getUTCDate();
-        year = fulldate.getUTCFullYear();
-        if (minMonth <= month && month <= maxMonth){
-             if (year = targYear){
-               uploadedSh.appendRow([filename,fulldate]);
-             }
-        }
+  var fauxUploads = new Array;
+  while(targFolder.hasNext()){
+    folder = targFolder.next();
+    for (i in pendingDeletionArr){
+      filename = pendingDeletionArr[i];
+      files = folder.getFilesByName(filename);
+      if(files.hasNext()){
+        size = files.next().getSize();
+        uploadedSh.appendRow([filename, size]);
       }
     }
   }
@@ -96,11 +103,11 @@ function listFauxUploads() {
    // Determines which files were not uploaded onto Google Photos
    for (i in pendingDeletionArr){
      notFound = true;
-     filename = pendingDeletionArr[i].slice(0,-4);
+     filename = pendingDeletionArr[i];
      j = 0;
      while (j < uploadedArr.length && notFound){
          upload_file = uploadedArr[j];
-         upload = upload_file.slice(0,8);
+         upload = upload_file;
          if (filename == upload){
            notFound = false;
          }
@@ -114,6 +121,5 @@ function listFauxUploads() {
      }
     }
 }
-    
 
 
