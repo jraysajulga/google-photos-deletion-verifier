@@ -17,7 +17,7 @@ function listUploads(){
   var google_photos_folder = google_photos_folders.next();
 
   // Obtain targeted year folder  
-  var targYear = false;
+  var targYear = 2018;
   var targFolder;
   if (targYear){
     targFolder = google_photos_folder.getFoldersByName(targYear);
@@ -114,6 +114,7 @@ function listFauxUploads() {
          //fauxUploadSh.appendRow([filename,upload,i,notFound,j]);
          j++;
       }
+     Logger.log(filename);
     
      // If file was not found in the uploaded repository, then outputs it to the spreadsheet.
      if(notFound){
